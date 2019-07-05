@@ -1,23 +1,23 @@
 'use strict';
 
-const HapiAuthBasic = require('hapi-auth-basic');
+const hapiAuthBasic = require('@hapi/basic');
 
-exports.register = (server, options, next) => {
+async function register (server, options) {
 
-  server.register(HapiAuthBasic, () => {
+  await server.register(hapiAuthBasic);
 
-    server.auth.strategy('basic', 'basic', false, {
-      validateFunc: (request, username, password, callback) => {
-        callback(null, username === 'lob', {});
-      }
-    });
+  await server.auth.strategy('basic', 'basic', {validate: async (request, username, password) => {
+    const isValid = username === 'lob';
+    const credentials = { email: "lob@lob.com" };
+      return { isValid, credentials };
+    }});
 
-  });
+}
 
-  next();
-
+const plugin = {
+  name: 'authentication',
+  version: '0.0.1',
+  register: register
 };
 
-exports.register.attributes = {
-  name: 'authentication'
-};
+exports = plugin;
